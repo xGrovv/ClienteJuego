@@ -21,8 +21,6 @@ public class Partida {
        //jugador = new Jugador(nick);
     }
     
-    
-            
     void situarJugador(){
       //elegir lugar ramdom o obtenerlo de mapa
       int x = getNumeroRandom(1, 100);
