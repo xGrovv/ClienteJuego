@@ -299,25 +299,6 @@ public class Juego extends javax.swing.JFrame {
         panelInicio.setVisible(true);
     }    
     
-    
-    
-    /*public void leftAction(){
-        int posX=jugador.getPosX();
-        // si es una posicion libre y valida
-        if(mapaControl.posicionLibre(posX-1, jugador.getPosY())){
-            jugador.setPosX(posX-1);  
-            // intercambio de anterior pos  contra  nueva pos
-            mapaControl.cambiarValores(posX, jugador.getPosY(), jugador.getPosX(), jugador.getPosY());
-            mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
-            mapaDibujo1.repaint();
-        }
-        else
-            System.out.println("pos invalida o NO-Libre");
-            
-        
-    }*/
-    
-    
     public void keyPressedAction(int keyCode){
         //capturamos la nueva posicion
         int posX1,posX2; posX1=posX2=jugador.getPosX();
