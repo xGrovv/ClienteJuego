@@ -13,6 +13,8 @@ import eventos.ClienteSocketEvent;
 import eventos.ClienteSocketListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 /**
  *
@@ -20,14 +22,15 @@ import java.awt.event.ActionListener;
  */
 public class Juego extends javax.swing.JFrame {
     
-    private final String IP_SERVER="192.168.43.236";
+    private final String IP_SERVER="192.168.43.23";
     private final int PORT_SERVER=4455;
     private int nroConexion;
    // private cliente.ClienteJuego clienteJuego = null;
     private ClienteSocket clienteSocket;
     private Comunicacion comunicacion = null;
     private MapaControl mapaControl=null;
-    
+    private mapaDibujo mapaDibujo1;
+            
     private Jugador jugador = null;
     
     public static final int ESTADO_NO_CONECTADO=1;    // aun no conectado al server
@@ -295,15 +298,85 @@ public class Juego extends javax.swing.JFrame {
         //panelJuego.setVisible(false);
         panelInicio.setVisible(true);
     }    
+    
+    
+    
+    /*public void leftAction(){
+        int posX=jugador.getPosX();
+        // si es una posicion libre y valida
+        if(mapaControl.posicionLibre(posX-1, jugador.getPosY())){
+            jugador.setPosX(posX-1);  
+            // intercambio de anterior pos  contra  nueva pos
+            mapaControl.cambiarValores(posX, jugador.getPosY(), jugador.getPosX(), jugador.getPosY());
+            mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
+            mapaDibujo1.repaint();
+        }
+        else
+            System.out.println("pos invalida o NO-Libre");
+            
+        
+    }*/
+    
+    
+    public void keyPressedAction(int keyCode){
+        //capturamos la nueva posicion
+        int posX1,posX2; posX1=posX2=jugador.getPosX();
+        int posY1,posY2; posY1=posY2=jugador.getPosY();
+        switch (keyCode){
+            case KeyEvent.VK_LEFT:  
+                posX2=jugador.getPosX()-1;
+                break;
+            case KeyEvent.VK_UP:
+                posY2=jugador.getPosY()-1;
+                break;
+            case KeyEvent.VK_RIGHT:
+                posX2=jugador.getPosX()+1;
+                break;
+            case KeyEvent.VK_DOWN:
+                posY2=jugador.getPosY()+1;
+                break;
+        }
+        // si es una posicion libre y valida
+        if(mapaControl.posicionLibre(posX2, posY2)){
+            jugador.setPosX(posX2);
+            jugador.setPosY(posY2);  
+            // intercambio de anterior pos  contra  nueva pos
+            mapaControl.cambiarValores(posX1, posY1, posX2, posY2);
+            mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
+            mapaDibujo1.repaint();
+        }
+        else
+            System.out.println("pos invalida o NO-Libre");
+        
+        
+    }
+    
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
         // TODO add your handling code here:
-       // jugador.setPosX(14);
-        //jugador.setPosY(6);
-        //panelJuego.setVisible(false);
+        //jugador.setPosX(97);
+        //jugador.setPosY(98);
+        mapaControl.addJugador(jugador.getNro(), jugador.getPosX(), jugador.getPosY());
         panelInicio.setVisible(false);
-        mapaDibujo mapaDibujo= new mapaDibujo(mapaControl, jugador.getPosX(), jugador.getPosY());
-        this.add(mapaDibujo);
-        mapaDibujo.repaint();
+        mapaDibujo1= new mapaDibujo(mapaControl, jugador.getPosX(), jugador.getPosY());
+        this.add(mapaDibujo1);
+        mapaDibujo1.repaint();
+        mapaDibujo1.requestFocus();
+        mapaDibujo1.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                int key = e.getKeyCode();
+                keyPressedAction(key);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+            }
+        });
+        
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed

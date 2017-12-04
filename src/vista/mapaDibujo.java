@@ -8,6 +8,8 @@ package vista;
 import cliente.MapaControl;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -20,21 +22,28 @@ import javax.swing.JPanel;
  *
  * @author Grover
  */
-public class mapaDibujo extends JPanel {
+public class mapaDibujo extends JPanel{
     
     private JPanel panel;
     private Graphics grafica;
     
-    private int dimension=9;
+    private final int DIMENSION_IMAGEN=52;
+    private int dimension=11;
     private byte[][] miniMatriz=null;
     private int posX_ini;
     private int posY_ini;
     MapaControl mapaControl;
     
     private BufferedImage imagePared;
+    private BufferedImage imageCesped;
+    private BufferedImage imagefin;
     private BufferedImage imageBicho;
     private BufferedImage imageEnemigo;
-    private BufferedImage imageEnemigoDesc;
+    private BufferedImage imageBichoBlock;
+    private BufferedImage imageEnemigoBlock;
+    private final int PARED_VAL=1;
+    private final int CESPED_VAL=0;
+    public static final int FIN_VAL=2;
     
             
     public  mapaDibujo( MapaControl mapaControl,int posX, int posY){
@@ -45,41 +54,56 @@ public class mapaDibujo extends JPanel {
         int medio=dimension/2;
         posX_ini=posX-medio;
         posY_ini=posY-medio;
-        miniMatriz= mapaControl.obtenersubMapa(dimension, posX, posY);
-        
+        miniMatriz= mapaControl.obtenersubMapa(dimension, posX_ini, posY_ini);
     }
     
     private void cargarImagenes(){
         try {
-            String dirPared= getClass().getResource("/Recursos/pared.png").getPath();
-            String dirBicho= getClass().getResource("/Recursos/bicho.png").getPath();
-            String dirEnemigo= getClass().getResource("/Recursos/enemigo.png").getPath();
+            String dirPared= getClass().getResource("/Recursos/pared52b.jpg").getPath();
+            String dirCesped= getClass().getResource("/Recursos/cesped52.jpg").getPath();
+            String dirFin= getClass().getResource("/Recursos/fin52.jpg").getPath();
+            String dirBicho= getClass().getResource("/Recursos/bicho52.jpg").getPath();
+            String dirEnemigo= getClass().getResource("/Recursos/enemigo52.jpg").getPath();
+            String dirBichoBlock= getClass().getResource("/Recursos/bichoBlock52.jpg").getPath();
+            String dirEnemigoBlock= getClass().getResource("/Recursos/enemigoBlock52.jpg").getPath();
             imagePared = ImageIO.read(new File(dirPared));
-            //imageBicho = ImageIO.read(new File(dirBicho));
-            //imageEnemigo = ImageIO.read(new File(dirEnemigo));
+            imageCesped = ImageIO.read(new File(dirCesped));
+            imagefin = ImageIO.read(new File(dirFin));
+            imageBicho = ImageIO.read(new File(dirBicho));
+            imageEnemigo = ImageIO.read(new File(dirEnemigo));
         } catch (IOException ex) {
             Logger.getLogger(mapaDibujo.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
+    public void actualizarMinimatriz(int posX, int posY){
+        int medio=dimension/2;
+        posX_ini=posX-medio;
+        posY_ini=posY-medio;
+        miniMatriz= mapaControl.obtenersubMapa(dimension, posX_ini, posY_ini);
+    }
     
     @Override
     public void paint(Graphics g){
         super.paint(g);
         dibujar(g);
-        System.out.println("eeeee");
     }
     
     public void dibujar(Graphics g){
-        
-        int tamanio=64;
+        int tamanio=DIMENSION_IMAGEN;
         for(int fil=0;fil<miniMatriz.length;fil++){
             for(int col=0;col<miniMatriz.length;col++){
-                if (miniMatriz[col][fil]==0) // debe ser uno = pared,,....// 0 = calle
+                if (miniMatriz[col][fil]==PARED_VAL)
                     g.drawImage(imagePared, col*tamanio, fil*tamanio, this);
+                if (miniMatriz[col][fil]==CESPED_VAL)
+                    g.drawImage(imageCesped, col*tamanio, fil*tamanio, this);
+                if (miniMatriz[col][fil]==FIN_VAL)
+                    g.drawImage(imagefin, col*tamanio, fil*tamanio, this);
+                if (miniMatriz[col][fil]>10)
+                    g.drawImage(imageBicho, col*tamanio, fil*tamanio, this);
             }
         }
     }
-    
+
     
 }
