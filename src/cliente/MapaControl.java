@@ -5,14 +5,10 @@
  */
 package cliente;
 
-import java.awt.Point;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import eventos.MapaModeloEvent;
+import eventos.MapaModeloListener;
+import java.util.ArrayList;
+import java.util.ListIterator;
 import vista.mapaDibujo;
 
 /**
@@ -25,7 +21,7 @@ public class MapaControl {
     private String mapaModeloString;
     private int nroColumnas;
     private int nroFilas;
-    
+    private ArrayList listeners;
     public static final byte ESPACIO_LIBRE = 0;
     
     
@@ -34,6 +30,7 @@ public class MapaControl {
         this.nroFilas= nroFilas;
         this.mapaModeloString = mapaModeloString;
         mapaModelo=new MapaModelo(nroColumnas, nroFilas);
+        listeners = new ArrayList();
         cargarMapaModelo();
         //SituarObjetivo();
     }
@@ -82,16 +79,26 @@ public class MapaControl {
         return resp;
     }
     
+    public void addListener(MapaModeloListener mapaModeloListener){
+        listeners.add(mapaModeloListener);
+    }
+    
     public void cambiarValores(int posX1, int posY1, int posX2, int posY2){
         byte val1=mapaModelo.getValue(posX1, posY1);
         byte val2=mapaModelo.getValue(posX2, posY2);
         mapaModelo.setValue(val2, posX1, posY1);
         mapaModelo.setValue(val1, posX2, posY2);
+        
+        ListIterator li = listeners.listIterator();
+        while (li.hasNext()) {
+            MapaModeloListener listener = (MapaModeloListener) li.next();
+            MapaModeloEvent evObj = new MapaModeloEvent(new DoublePoint(posX1, posY1, posX2, posY2));
+            (listener).onChangeMapaModelo(evObj);
+        }
     }
     
     public void addJugador(byte nroJugador, int col, int fil){
-        mapaModelo.setValue(nroJugador, col, fil);
-        
+        mapaModelo.setValue(nroJugador, col, fil);    
     }
     
     public boolean posInvalida(int posX, int posY){

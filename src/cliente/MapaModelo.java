@@ -5,8 +5,6 @@
  */
 package cliente;
 
-import java.util.ArrayList;
-
 /**
  *
  * @author Juan Pablo
@@ -20,12 +18,25 @@ public class MapaModelo {
     private int posX_Tesoro;
     private int posY_Tesoro;
     
-    private ArrayList<Byte> casillasNoValidas = null;
+    
+    
+    //private ArrayList<Byte> casillasNoValidas = null;
     private int dimensionSubmapa;
 
     public MapaModelo() {
         this.nroColumnas = 0;
         this.nroFilas = 0;    
+    }
+    
+    public MapaModelo(int nroColumnas, int nroFilas) {
+        this.nroColumnas = nroColumnas;
+        this.nroFilas = nroFilas;
+        matriz = new byte[nroColumnas][nroFilas];  
+        /*casillasNoValidas = new ArrayList<>();
+        casillasNoValidas.add( new Byte("0") );
+        casillasNoValidas.add( new Byte("1") );
+        casillasNoValidas.add( new Byte("2") );
+        */
     }
     
     public void setValue(byte value, int posX, int PosY){
@@ -44,27 +55,21 @@ public class MapaModelo {
         this.dimensionSubmapa = dimensionSubmapa;
     }
     
-    
-
-    public MapaModelo(int nroColumnas, int nroFilas) {
-        this.nroColumnas = nroColumnas;
-        this.nroFilas = nroFilas;
-        matriz = new byte[nroColumnas][nroFilas];  
-        casillasNoValidas = new ArrayList<>();
-        casillasNoValidas.add( new Byte("0") );
-        casillasNoValidas.add( new Byte("1") );
-        casillasNoValidas.add( new Byte("2") );
-        
+    public boolean isPosicionValida( int x, int y ){
+        if( (matriz[x][y]!=0) && (matriz[x][y]!=1 && (matriz[x][y]!=2))  ){
+            return true;
+        }
+        else
+           return false;
     }
     
-    public void addCasillasValidas(byte casilla){
+    /*public void addCasillasValidasc(byte casilla){
         if (casillasNoValidas != null) {
             casillasNoValidas.add(casilla);
         }
-    };
+    };*/
     
-    
-    public byte[][] SubMapa( int posx, int posy, int dimension){
+    public byte[][] SubMapa2( int posx, int posy, int dimension){
         //en posion central posx , posy del jugador se obtiene un submapa
         int xn = posx - dimension/2;
         int yn = posy - dimension/2;
@@ -86,11 +91,11 @@ public class MapaModelo {
             //fijar y
         }
         
-        return getSubMapa( inix,iniy, dimension );
+        return getSubMapa3( inix,iniy, dimension );
     }
     
 
-    public byte[][] SubMapa( int posx, int posy){
+    public byte[][] SubMapa1( int posx, int posy){
         //en posion central posx , posy del jugador se obtiene un submapa
         int xn = posx - dimensionSubmapa/2;
         int yn = posy - dimensionSubmapa/2;
@@ -98,10 +103,10 @@ public class MapaModelo {
         int yp = posy + dimensionSubmapa/2;   
 
         
-        return getSubMapa( xn,yn, dimensionSubmapa );
+        return getSubMapa3( xn,yn, dimensionSubmapa );
     }    
     
-    private byte[][] getSubMapa(int inix, int iniy, int dimension) {
+    private byte[][] getSubMapa3(int inix, int iniy, int dimension) {
         byte[][] tmp = null;
         for (int i = inix; i < dimension+inix; i++) {
             for (int j = iniy; j < dimension+iniy; j++) {
@@ -111,16 +116,7 @@ public class MapaModelo {
         return tmp;
     }    
     
-    public boolean isPosicionValido( int x, int y ){
-        
-        if( (matriz[x][y]!=0) && (matriz[x][y]!=1 && (matriz[x][y]!=2))  ){
-            return true;
-        }
-        else
-           return false;
-    }
-    
-    public boolean isPosiconEnMapa( int x, int y ){
+    public boolean isPosiconEnMapa1( int x, int y ){
         
         if( (x>=0) && (x<=100) && (y>=0) && (y<=100)){            
                 return true;
@@ -130,9 +126,5 @@ public class MapaModelo {
         }
         
     }
-
-
-    
-    
     
 }

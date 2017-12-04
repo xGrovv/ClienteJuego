@@ -7,10 +7,13 @@ package vista;
 
 import cliente.ClienteSocket;
 import cliente.Comunicacion;
+import cliente.DoublePoint;
 import cliente.Jugador;
 import cliente.MapaControl;
 import eventos.ClienteSocketEvent;
 import eventos.ClienteSocketListener;
+import eventos.MapaModeloEvent;
+import eventos.MapaModeloListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -21,24 +24,24 @@ import java.awt.event.KeyListener;
  * @author Juan Pablo
  */
 public class Juego extends javax.swing.JFrame {
-    
-    private final String IP_SERVER="192.168.43.23";
-    private final int PORT_SERVER=4455;
+
+    private final String IP_SERVER = "192.168.43.23";
+    private final int PORT_SERVER = 4455;
     private int nroConexion;
-   // private cliente.ClienteJuego clienteJuego = null;
+    // private cliente.ClienteJuego clienteJuego = null;
     private ClienteSocket clienteSocket;
     private Comunicacion comunicacion = null;
-    private MapaControl mapaControl=null;
+    private MapaControl mapaControl = null;
     private mapaDibujo mapaDibujo1;
-            
+    private boolean lider;
     private Jugador jugador = null;
-    
-    public static final int ESTADO_NO_CONECTADO=1;    // aun no conectado al server
-    public static final int ESTADO_CONECTADO=10;    // solo conectado a nivel socket
-    public static final int ESTADO_REGISTRADO=20;    // conectado y registrado con un nick
-    public static final int ESTADO_PARTIDA=30; // esta registrado e incluido en una pardida
-    public static final int ESTADO_JUEGO=40;    // esta en una partida que esta en juego (iniciado)
-    
+
+    public static final int ESTADO_NO_CONECTADO = 1;    // aun no conectado al server
+    public static final int ESTADO_CONECTADO = 10;    // solo conectado a nivel socket
+    public static final int ESTADO_REGISTRADO = 20;    // conectado y registrado con un nick
+    public static final int ESTADO_PARTIDA = 30; // esta registrado e incluido en una pardida
+    public static final int ESTADO_JUEGO = 40;    // esta en una partida que esta en juego (iniciado)
+
     private int estado;
 
     /**
@@ -46,12 +49,13 @@ public class Juego extends javax.swing.JFrame {
      */
     public Juego() {
         initComponents();
-        jLMsj.setText("iniciando  ... ");
+        lbStatus.setText("iniciando  ... ");
         actionEnter();
-        //jBJugar.setVisible(false);
+        lider = false;
+
+        btJugar.setVisible(false);
         miInicio();
-        
-        
+
     }
 
     /**
@@ -63,12 +67,13 @@ public class Juego extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLMsj = new javax.swing.JLabel();
+        lbStatus = new javax.swing.JLabel();
         panelInicio = new javax.swing.JPanel();
         lbJugador = new javax.swing.JLabel();
         txtJugador = new javax.swing.JTextField();
         btReg = new javax.swing.JButton();
-        jBJugar = new javax.swing.JButton();
+        btJugar = new javax.swing.JButton();
+        lbMensaje = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu2 = new javax.swing.JMenu();
         jMenuItem4 = new javax.swing.JMenuItem();
@@ -78,9 +83,14 @@ public class Juego extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("JUEGO LABERINTO");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
-        jLMsj.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLMsj.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        lbStatus.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lbStatus.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
 
         panelInicio.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Inicio de Juego", javax.swing.border.TitledBorder.CENTER, javax.swing.border.TitledBorder.TOP, new java.awt.Font("Tahoma", 1, 14))); // NOI18N
 
@@ -99,18 +109,32 @@ public class Juego extends javax.swing.JFrame {
             }
         });
 
+        btJugar.setText("JUGAR");
+        btJugar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btJugarActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelInicioLayout = new javax.swing.GroupLayout(panelInicio);
         panelInicio.setLayout(panelInicioLayout);
         panelInicioLayout.setHorizontalGroup(
             panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInicioLayout.createSequentialGroup()
-                .addGap(46, 46, 46)
-                .addComponent(lbJugador)
-                .addGap(18, 18, 18)
                 .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txtJugador, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btReg))
-                .addContainerGap(97, Short.MAX_VALUE))
+                    .addGroup(panelInicioLayout.createSequentialGroup()
+                        .addGap(46, 46, 46)
+                        .addComponent(lbJugador)
+                        .addGap(18, 18, 18)
+                        .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(txtJugador, javax.swing.GroupLayout.PREFERRED_SIZE, 115, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                .addComponent(btJugar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btReg, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                    .addGroup(panelInicioLayout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(lbMensaje)))
+                .addContainerGap(168, Short.MAX_VALUE))
         );
         panelInicioLayout.setVerticalGroup(
             panelInicioLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -121,24 +145,16 @@ public class Juego extends javax.swing.JFrame {
                     .addComponent(txtJugador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btReg)
-                .addContainerGap(38, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addComponent(btJugar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addComponent(lbMensaje)
+                .addContainerGap())
         );
-
-        jBJugar.setText("JUGAR");
-        jBJugar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jBJugarActionPerformed(evt);
-            }
-        });
 
         jMenu2.setText("JUEGO");
 
         jMenuItem4.setText("REGISTRARSE");
-        jMenuItem4.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem4ActionPerformed(evt);
-            }
-        });
         jMenu2.add(jMenuItem4);
 
         jMenuItem1.setText("CREAR");
@@ -164,184 +180,288 @@ public class Juego extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(629, Short.MAX_VALUE)
-                .addComponent(jBJugar)
-                .addGap(204, 204, 204)
-                .addComponent(jLMsj, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(898, Short.MAX_VALUE)
+                .addComponent(lbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 196, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(243, 243, 243)
-                    .addComponent(panelInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(534, Short.MAX_VALUE)))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(112, 112, 112)
+                .addComponent(panelInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLMsj, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jBJugar))
-                .addContainerGap(594, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(200, 200, 200)
-                    .addComponent(panelInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(292, Short.MAX_VALUE)))
+                .addGap(14, 14, 14)
+                .addComponent(lbStatus, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(54, 54, 54)
+                .addComponent(panelInicio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(358, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void miInicio(){
-        nroConexion=0;
-        estado=Juego.ESTADO_NO_CONECTADO;
+    private void miInicio() {
+        nroConexion = 0;
+        panelInicioEntornoNoConectado();
+        estado = Juego.ESTADO_NO_CONECTADO;
         comunicacion = new Comunicacion();
-        clienteSocket=new ClienteSocket(IP_SERVER, PORT_SERVER);
+        clienteSocket = new ClienteSocket(IP_SERVER, PORT_SERVER);
         clienteSocket.iniciar();
-        jugador= new Jugador("none",  new Byte("0"));
+        jugador = new Jugador("none", new Byte("0"));
         clienteSocket.addListenerEvent(new ClienteSocketListener() {
             @Override
             public void onConnected(ClienteSocketEvent ev) {
+                System.out.println(">>>>>Juego.onLostConnection()");
                 nroConexion++;
-                if (estado==Juego.ESTADO_NO_CONECTADO){
-                    estado=Juego.ESTADO_CONECTADO;
-                    jLMsj.setText("Conectado >>"+nroConexion);
-                    panelInicio.setVisible(true);
+                if (estado == Juego.ESTADO_NO_CONECTADO) {
+                    estado = Juego.ESTADO_CONECTADO;
+                    lbStatus.setText("Conectado >>" + nroConexion);
+                    panelInicioEntornoConectado();
                 }
-                
-                if (estado==Juego.ESTADO_CONECTADO){
-                    
+
+                if (estado == Juego.ESTADO_CONECTADO) {
+
                 }
-                
-                if (estado==Juego.ESTADO_JUEGO){
-                    
+
+                if (estado == Juego.ESTADO_JUEGO) {
+
                 }
-                
+
             }
 
             @Override
             public void onLostConnection(ClienteSocketEvent ev) {
-                jLMsj.setText("Conexion Perdida>>");
+                System.out.println(">>>>>Juego.onLostConnection()");
+                lbStatus.setText("Conexion Perdida>>");
             }
 
             @Override
             public void onFailConnection(ClienteSocketEvent ev) {
-                jLMsj.setText("fallo en intento de Conexion>>");
+                lbStatus.setText("fallo en intento de Conexion>>");
             }
 
             @Override
             public void onMessageReceive(ClienteSocketEvent ev) {
                 String rec = (String) ev.getSource();
-                
-                if(rec.contains("[reg]done")){  
+
+                if (rec.contains("[lider]")) {
+                    lider = true;
+                    btJugar.setVisible(true);
+                    btJugar.setEnabled(true);
+                    System.out.println("lider");
+                }
+
+                if (rec.contains("[reg]done")) {
                     //antes de registrar validar si hay conexion
-                    String nroJ= rec.substring(rec.indexOf('>')+1);
-                    Byte miNro=Byte.parseByte(nroJ);
-                    if (miNro==11)
-                    jBJugar.setEnabled(true);
-                    panelInicio.setVisible(false);
+                    String nroJ = rec.substring(rec.indexOf('>') + 1);
+                    Byte miNro = Byte.parseByte(nroJ);
+                    //if (miNro==11)
+                    //  btJugar.setEnabled(true);
+                    //panelInicio.setVisible(false);
                     //panelJuego.setVisible(true);
-                    jLMsj.setText(txtJugador.getText());
-                    
+                    lbStatus.setText(jugador.getNickname());
+
                     clienteSocket.EnviarMensaje(comunicacion.PedirMapa());
                     jugador.setNickname(txtJugador.getText());
                     jugador.setNro(miNro);
-                    
+                    panelInicioEntornoRegistrado();
+
                 }
-                
-               if(rec.contains("[reg-no]")){  //
-                   System.out.println("nick ya existe");
-                   //mostrar menssaje en la pantalla
-                }  
-               
-                if(rec.contains("[dateconnection]>")){  //
-                   long date = Long.parseLong(rec.substring(rec.indexOf('>')+1));
-                   jugador.setDateconnection(date);
-                   System.out.println(date);
-                   //mostrar menssaje en la pantalla
+
+                if (rec.contains("[reg-no]")) {  //
+                    //System.out.println("nick ya existe");
+                    lbMensaje.setText("Nickname ya exixte escriba otro");
                 }
-                
-                if(rec.contains("[dateconnection_request]")){ //
-                    clienteSocket.EnviarMensaje( comunicacion.date(jugador.getDateconnection()) );
+
+                if (rec.contains("[reg]enjuego")) {
+                    lbMensaje.setText(" ya hay un juego iniciado, intentelo luego");
                 }
-                
-                if(rec.contains("[map]")){
-                    System.out.println("mapa "+rec.substring(9980,rec.length()));
+
+                if (rec.contains("[jugar-no]>")) {  //
+
+                    System.out.println(rec.substring(rec.indexOf('>')));
+                }
+
+                if (rec.contains("[jugar-done]")) {  //
+
+                    //System.out.println(rec.substring(rec.indexOf('>')));
+                    panelInicioEntornoJuego();
+
+                    mapaDibujo1.requestFocus();
+
+                }
+
+                if (rec.contains("[dateconnection]>")) {  //
+                    long date = Long.parseLong(rec.substring(rec.indexOf('>') + 1));
+                    jugador.setDateconnection(date);
+                    System.out.println(date);
+                    //mostrar menssaje en la pantalla
+                }
+
+                if (rec.contains("[dateconnection_request]")) { //
+                    clienteSocket.EnviarMensaje(comunicacion.date(jugador.getDateconnection()));
+                }
+
+                if (rec.contains("[map]")) {
+                    System.out.println("mapa " + rec.substring(9980, rec.length()));
                     String mapaString = rec.substring(5);   // 5 es cantidad de caracteres del comando [map]
                     mapaControl = new MapaControl(100, 100, mapaString);   // 100*100 dimencion de la matriz
+                    mapaControl.addListener(new MapaModeloListener() {
+                        @Override
+                        public void onChangeMapaModelo(MapaModeloEvent ev) {
+                            // si posiciones pos1 estan incluidas en el minimapa hacer
+                            DoublePoint pos = (DoublePoint) ev.getSource();
+                            if (((mapaDibujo1.posIncluida(pos.posX1, pos.posY1))) || (mapaDibujo1.posIncluida(pos.posX2, pos.posY2))) {
+                                mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
+                                mapaDibujo1.repaint();
+                            }//hh
+
+                        }
+                    });
                     clienteSocket.EnviarMensaje(comunicacion.pedirPosicion()); // requerimiento de posiciones de jugadores
                     //mostrar el submapa en el panel
-                    
+
                 }
-                
-                if(rec.contains("[pos]")){  // entrega de posicion de un jugador   <15_45-100>
+
+                if (rec.contains("[pos]")) {  // entrega de posicion de un jugador   <15_45-100>
                     System.out.println(rec);
-                    String nroJ = rec.substring(rec.indexOf("<")+1, rec.indexOf("_"));
-                    String posX = rec.substring(rec.indexOf("_")+1, rec.indexOf("-"));
-                    String posY = rec.substring(rec.indexOf("-")+1, rec.indexOf(">"));
+                    String nroJ = rec.substring(rec.indexOf("<") + 1, rec.indexOf("_"));
+                    String posX = rec.substring(rec.indexOf("_") + 1, rec.indexOf("-"));
+                    String posY = rec.substring(rec.indexOf("-") + 1, rec.indexOf(">"));
                     if (jugador.getNro() == Byte.parseByte(nroJ)) {
-                        jugador.setPosX( Integer.parseInt( posX));
-                        jugador.setPosY( Integer.parseInt( posY));
+                        jugador.setPosX(Integer.parseInt(posX));
+                        jugador.setPosY(Integer.parseInt(posY));
+                        mapaControl.addJugador(Byte.parseByte(nroJ), Integer.parseInt(posX), Integer.parseInt(posY));
+                        iniciarMapaDidujo();
+                        panelInicio.repaint();
+
+                    } else {
+                        mapaControl.addJugador(Byte.parseByte(nroJ), Integer.parseInt(posX), Integer.parseInt(posY));
                     }
-                    
-                    mapaControl.addJugador(Byte.parseByte(nroJ), Integer.parseInt(posX), Integer.parseInt(posY));
-                    
+
                 }
                 
+                if (rec.contains("[move]>")) {
+                    String nroJ  = rec.substring(rec.indexOf(">") + 1, rec.indexOf("_"));
+                    String posX1 = rec.substring(rec.indexOf("_") + 1, rec.indexOf("-"));
+                    String posY1 = rec.substring(rec.indexOf("-") + 1, rec.indexOf("*"));
+                    String posX2 = rec.substring(rec.indexOf("*") + 1, rec.indexOf("@"));
+                    String posY2 = rec.substring(rec.indexOf("@") + 1);
+                    if (jugador.getNro() == Integer.parseInt(nroJ)) {
+                        jugador.setPosX(Integer.parseInt(posX2));
+                        jugador.setPosY(Integer.parseInt(posY2));
+                    }
+                    mapaControl.cambiarValores( Integer.parseInt(posX1) , Integer.parseInt(posY1), Integer.parseInt(posX2), Integer.parseInt(posY2));
+                }
 
             }
         });
-        
+
         //conectar al server
         // si no conecta mostrar mensaje de servidor inactivo
         //panelJuego.setVisible(false);
-        panelInicio.setVisible(true);
-    }    
-    
-    public void keyPressedAction(int keyCode){
+        //panelInicio.setVisible(true);
+    }
+
+    public void keyPressedAction2(int keyCode) {
         //capturamos la nueva posicion
-        int posX1,posX2; posX1=posX2=jugador.getPosX();
-        int posY1,posY2; posY1=posY2=jugador.getPosY();
-        switch (keyCode){
-            case KeyEvent.VK_LEFT:  
-                posX2=jugador.getPosX()-1;
+        int posX1, posX2;
+        posX1 = posX2 = jugador.getPosX();
+        int posY1, posY2;
+        posY1 = posY2 = jugador.getPosY();
+        switch (keyCode) {
+            case KeyEvent.VK_LEFT:
+                posX2 = jugador.getPosX() - 1;
                 break;
             case KeyEvent.VK_UP:
-                posY2=jugador.getPosY()-1;
+                posY2 = jugador.getPosY() - 1;
                 break;
             case KeyEvent.VK_RIGHT:
-                posX2=jugador.getPosX()+1;
+                posX2 = jugador.getPosX() + 1;
                 break;
             case KeyEvent.VK_DOWN:
-                posY2=jugador.getPosY()+1;
+                posY2 = jugador.getPosY() + 1;
                 break;
         }
         // si es una posicion libre y valida
-        if(mapaControl.posicionLibre(posX2, posY2)){
+        if (mapaControl.posicionLibre(posX2, posY2)) {
             jugador.setPosX(posX2);
-            jugador.setPosY(posY2);  
+            jugador.setPosY(posY2);
             // intercambio de anterior pos  contra  nueva pos
-            mapaControl.cambiarValores(posX1, posY1, posX2, posY2);
-            mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
-            mapaDibujo1.repaint();
-        }
-        else
+            clienteSocket.EnviarMensaje("[move]>"+jugador.getNro()+"_"+ posX1+"-"+posY1+"*"+posX2+"@"+posY2);
+        } else {
             System.out.println("pos invalida o NO-Libre");
-        
+        }
         
     }
     
-    private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        // TODO add your handling code here:
-        //jugador.setPosX(97);
-        //jugador.setPosY(98);
-        mapaControl.addJugador(jugador.getNro(), jugador.getPosX(), jugador.getPosY());
+    public void keyPressedAction(int keyCode) {
+        //capturamos la nueva posicion
+        int posX1, posX2;
+        posX1 = posX2 = jugador.getPosX();
+        int posY1, posY2;
+        posY1 = posY2 = jugador.getPosY();
+        switch (keyCode) {
+            case KeyEvent.VK_LEFT:
+                posX2 = jugador.getPosX() - 1;
+                break;
+            case KeyEvent.VK_UP:
+                posY2 = jugador.getPosY() - 1;
+                break;
+            case KeyEvent.VK_RIGHT:
+                posX2 = jugador.getPosX() + 1;
+                break;
+            case KeyEvent.VK_DOWN:
+                posY2 = jugador.getPosY() + 1;
+                break;
+        }
+        // si es una posicion libre y valida
+        if (mapaControl.posicionLibre(posX2, posY2)) {
+            jugador.setPosX(posX2);
+            jugador.setPosY(posY2);
+            // intercambio de anterior pos  contra  nueva pos
+            mapaControl.cambiarValores(posX1, posY1, posX2, posY2);
+            //mapaDibujo1.actualizarMinimatriz(jugador.getPosX(), jugador.getPosY());
+            //mapaDibujo1.repaint();
+        } else {
+            System.out.println("pos invalida o NO-Libre");
+        }
+
+    }
+
+    public void panelInicioEntornoNoConectado() {
+        panelInicio.setVisible(true);
+        txtJugador.setEnabled(false);
+        btJugar.setEnabled(false);
+        btReg.setEnabled(false);
+        lbMensaje.setText("Conectando al servidor");
+    }
+
+    public void panelInicioEntornoConectado() {
+        panelInicio.setVisible(true);
+        txtJugador.setEnabled(true);
+        btJugar.setEnabled(true);
+        btReg.setEnabled(true);
+        lbMensaje.setText("Conectado: ahora debe registrarse");
+    }
+
+    public void panelInicioEntornoRegistrado() {
+        panelInicio.setVisible(true);
+        txtJugador.setEnabled(false);
+        btJugar.setEnabled(false);
+        btReg.setEnabled(false);
+        lbMensaje.setText("Registrado:  Espere el inicio del juego");
+    }
+
+    public void panelInicioEntornoJuego() {
         panelInicio.setVisible(false);
-        mapaDibujo1= new mapaDibujo(mapaControl, jugador.getPosX(), jugador.getPosY());
+    }
+
+    public void iniciarMapaDidujo() {
+        mapaDibujo1 = new mapaDibujo(mapaControl, jugador.getPosX(), jugador.getPosY());
         this.add(mapaDibujo1);
         mapaDibujo1.repaint();
-        mapaDibujo1.requestFocus();
         mapaDibujo1.addKeyListener(new KeyListener() {
             @Override
             public void keyTyped(KeyEvent e) {
@@ -350,41 +470,40 @@ public class Juego extends javax.swing.JFrame {
             @Override
             public void keyPressed(KeyEvent e) {
                 int key = e.getKeyCode();
-                keyPressedAction(key);
+                keyPressedAction2(key);
             }
 
             @Override
             public void keyReleased(KeyEvent e) {
             }
         });
-        
-    }//GEN-LAST:event_jMenuItem4ActionPerformed
+    }
 
     private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jMenuItem2ActionPerformed
 
     private void btRegActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btRegActionPerformed
-        // TODO add your handling code here
-        
+        // TODO add your handling code here 
         if (!"".equals(txtJugador.getText())) {
-            clienteSocket.EnviarMensaje(comunicacion.Registrar( txtJugador.getText() ));
+            clienteSocket.EnviarMensaje(comunicacion.Registrar(txtJugador.getText()));
         }
-       
-        
     }//GEN-LAST:event_btRegActionPerformed
 
-    private void jBJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jBJugarActionPerformed
-         
+    private void btJugarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btJugarActionPerformed
+
         clienteSocket.EnviarMensaje(comunicacion.jugar());
-        
-        
-        
-    }//GEN-LAST:event_jBJugarActionPerformed
+    }//GEN-LAST:event_btJugarActionPerformed
 
     private void txtJugadorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtJugadorActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtJugadorActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+        clienteSocket.EnviarMensaje("[salir]");
+        System.out.println("vista.Juego.formWindowClosing()");
+    }//GEN-LAST:event_formWindowClosing
 
     /**
      * @param args the command line arguments
@@ -422,9 +541,8 @@ public class Juego extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btJugar;
     private javax.swing.JButton btReg;
-    private javax.swing.JButton jBJugar;
-    private javax.swing.JLabel jLMsj;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
@@ -432,6 +550,8 @@ public class Juego extends javax.swing.JFrame {
     private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JMenuItem jMenuItem4;
     private javax.swing.JLabel lbJugador;
+    private javax.swing.JLabel lbMensaje;
+    private javax.swing.JLabel lbStatus;
     private javax.swing.JPanel panelInicio;
     private javax.swing.JTextField txtJugador;
     // End of variables declaration//GEN-END:variables
@@ -442,12 +562,10 @@ public class Juego extends javax.swing.JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (!"".equals(txtJugador.getText())) {
-                    clienteSocket.EnviarMensaje(comunicacion.Registrar( txtJugador.getText() ));
-                   }
+                    clienteSocket.EnviarMensaje(comunicacion.Registrar(txtJugador.getText()));
+                }
             }
         });
     }
 
-   
-    
 }

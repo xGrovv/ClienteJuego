@@ -25,7 +25,7 @@ public class Partida {
       //elegir lugar ramdom o obtenerlo de mapa
       int x = getNumeroRandom(1, 100);
       int y = getNumeroRandom(1, 100);
-        while ( !mapa.isPosicionValido(x, y)) {            
+        while ( !mapa.isPosicionValida(x, y)) {            
             x = getNumeroRandom(1, 100);
             y = getNumeroRandom(1, 100);
         }

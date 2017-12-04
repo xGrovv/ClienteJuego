@@ -5,8 +5,6 @@
  */
 package cliente;
 
-import java.awt.Point;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Logger;
 
 /**
@@ -14,7 +12,7 @@ import java.util.logging.Logger;
  * @author Juan Pablo
  */
 public class Jugador {
-    private static Logger log = Logger.getLogger(Jugador.class.getName());
+    //private static Logger log = Logger.getLogger(Jugador.class.getName());
     
     private String nickname;
     private int posX;

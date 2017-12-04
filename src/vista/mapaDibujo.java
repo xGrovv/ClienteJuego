@@ -28,7 +28,7 @@ public class mapaDibujo extends JPanel{
     private Graphics grafica;
     
     private final int DIMENSION_IMAGEN=52;
-    private int dimension=11;
+    private final int DIMENSION=11;
     private byte[][] miniMatriz=null;
     private int posX_ini;
     private int posY_ini;
@@ -51,10 +51,10 @@ public class mapaDibujo extends JPanel{
         this.setBounds(90, 50, 577, 577);
         cargarImagenes();
         this.mapaControl=mapaControl;
-        int medio=dimension/2;
+        int medio=DIMENSION/2;
         posX_ini=posX-medio;
         posY_ini=posY-medio;
-        miniMatriz= mapaControl.obtenersubMapa(dimension, posX_ini, posY_ini);
+        miniMatriz= mapaControl.obtenersubMapa(DIMENSION, posX_ini, posY_ini);
     }
     
     private void cargarImagenes(){
@@ -77,10 +77,17 @@ public class mapaDibujo extends JPanel{
     }
     
     public void actualizarMinimatriz(int posX, int posY){
-        int medio=dimension/2;
+        int medio=DIMENSION/2;
         posX_ini=posX-medio;
         posY_ini=posY-medio;
-        miniMatriz= mapaControl.obtenersubMapa(dimension, posX_ini, posY_ini);
+        miniMatriz= mapaControl.obtenersubMapa(DIMENSION, posX_ini, posY_ini);
+    }
+    
+    public boolean posIncluida(int posX, int posY){
+        if ((posX>=posX_ini)&&(posX<posX_ini+DIMENSION))
+            if ((posY>=posY_ini)&&(posY<posY_ini+DIMENSION))
+                return true;
+        return false;
     }
     
     @Override
