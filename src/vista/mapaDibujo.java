@@ -8,8 +8,6 @@ package vista;
 import cliente.MapaControl;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -70,6 +68,7 @@ public class mapaDibujo extends JPanel{
             imageCesped = ImageIO.read(new File(dirCesped));
             imagefin = ImageIO.read(new File(dirFin));
             imageBicho = ImageIO.read(new File(dirBicho));
+            imageBichoBlock = ImageIO.read(new File(dirBichoBlock));
             imageEnemigo = ImageIO.read(new File(dirEnemigo));
         } catch (IOException ex) {
             Logger.getLogger(mapaDibujo.class.getName()).log(Level.SEVERE, null, ex);
@@ -107,7 +106,10 @@ public class mapaDibujo extends JPanel{
                 if (miniMatriz[col][fil]==FIN_VAL)
                     g.drawImage(imagefin, col*tamanio, fil*tamanio, this);
                 if (miniMatriz[col][fil]>10)
-                    g.drawImage(imageBicho, col*tamanio, fil*tamanio, this);
+                    if (miniMatriz[col][fil]>100)                    
+                        g.drawImage(imageBichoBlock, col*tamanio, fil*tamanio, this);
+                    else
+                        g.drawImage(imageBicho, col*tamanio, fil*tamanio, this);
             }
         }
     }

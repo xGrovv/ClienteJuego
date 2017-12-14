@@ -7,6 +7,7 @@ package cliente;
 
 import eventos.MapaModeloEvent;
 import eventos.MapaModeloListener;
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.ListIterator;
 import vista.mapaDibujo;
@@ -94,6 +95,20 @@ public class MapaControl {
             MapaModeloListener listener = (MapaModeloListener) li.next();
             MapaModeloEvent evObj = new MapaModeloEvent(new DoublePoint(posX1, posY1, posX2, posY2));
             (listener).onChangeMapaModelo(evObj);
+        }
+    }
+    
+    public void cambiarValor(byte val, int posX1, int posY1){
+        
+        
+        mapaModelo.setValue(val, posX1, posY1);
+        
+        
+        ListIterator li = listeners.listIterator();
+        while (li.hasNext()) {
+            MapaModeloListener listener = (MapaModeloListener) li.next();
+            MapaModeloEvent evObj = new MapaModeloEvent(new Point(posX1, posY1));
+            (listener).onChangeMapaModeloUnValor(evObj);
         }
     }
     

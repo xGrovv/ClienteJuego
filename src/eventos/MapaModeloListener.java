@@ -12,5 +12,6 @@ package eventos;
 public interface MapaModeloListener {
     
     public void onChangeMapaModelo(MapaModeloEvent ev);
+    public void onChangeMapaModeloUnValor(MapaModeloEvent ev);
     
 }
